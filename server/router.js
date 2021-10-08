@@ -1,9 +1,9 @@
 const express = require('express')
-const db = require('./helpers.js')
 const router = express.Router()
+const db = require('./helpers.js')
 
-router.get('/api/reviews/', (req, res) => {
-  db.fetchReviews((err, data) => {
+router.get('/', (req, res) => {
+  db.fetchReviews(req.query, (err, data) => {
     if (err) {
       res.status(400).send(err)
     }
@@ -11,24 +11,25 @@ router.get('/api/reviews/', (req, res) => {
   })
 })
 
-router.post('/api/reviews', (req, res) => {
-  db.addReview(req.body.data, (err, data) => {
+router.post('/', (req, res) => {
+  db.addReview(req, (err, data) => {
     if (err) {
       res.status(400).send(err)
     }
-    res.status(200).send(data)
+    console.log(req)
+    res.status(201).send(data)
   })
 })
 
-router.get('/api/reviews/meta', (req, res) => {
+router.get('/meta', (req, res) => {
 
 })
 
-router.put('/api/reviews/:review_id/helpful', (req, res) => {
+router.put('/:review_id/helpful', (req, res) => {
 
 })
 
-router.put('/api/reviews/:review_id/report', (req, res) => {
+router.put('/:review_id/report', (req, res) => {
 
 })
 
