@@ -2,6 +2,8 @@ const express = require('express')
 const router = express.Router()
 const db = require('./helpers.js')
 
+router.use(express.json())
+
 router.get('/', (req, res) => {
   db.fetchReviews(req.query, (err, data) => {
     if (err) {
@@ -12,11 +14,10 @@ router.get('/', (req, res) => {
 })
 
 router.post('/', (req, res) => {
-  db.addReview(req, (err, data) => {
+  db.addReview(req.body, (err, data) => {
     if (err) {
       res.status(400).send(err)
     }
-    console.log(req)
     res.status(201).send(data)
   })
 })

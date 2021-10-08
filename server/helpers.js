@@ -28,6 +28,7 @@ const fetchReviews = (params, callback) => {
     product_id,
   } = params
 
+  // missing photos
   let str = `
     SELECT id, rating, summary, recommend, response, body, date, reviewer_name, helpfulness
     FROM reviews
@@ -45,34 +46,40 @@ const fetchReviews = (params, callback) => {
 
 const addReview = (data, callback) => {
   let {
-    id,
     product_id,
     rating,
-    date,
     summary,
     body,
     recommend,
-    reported,
     reviewer_name,
     reviewer_email,
-    response,
-    helpfulness,
   } = data
 
-  client.query(`INSERT INTO reviews VALUES (${{
-    id,
-    product_id,
-    rating,
-    date,
-    summary,
-    body,
-    recommend,
-    reported,
-    reviewer_name,
-    reviewer_email,
-    response,
-    helpfulness
-  }})`)
+  // missing photos & characteristics
+  let str = `
+    PREPARE add (int, int, text, text, bool, text, text) AS
+      INSERT INTO reviews (
+        product_id,
+        rating,
+        summary,
+        body,
+        recommend,
+        reviewer_name,
+        reviewer_email
+      )
+    VALUES ($1, $2, $3, $4, $5, $6, $7);
+    EXECUTE add (
+      ${product_id},
+      ${rating},
+      ${summary},
+      ${body},
+      ${recommend},
+      ${reviewer_name},
+      ${reviewer_email}
+    );
+    `
+    console.log(str)
+  client.query(str)
     .then((results) => callback(null, results))
     .catch((err) => callback(err))
     .then(() => client.end())
