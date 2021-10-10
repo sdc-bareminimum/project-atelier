@@ -46,7 +46,7 @@ const fetchReviews = (params, callback) => {
   `
 
   client.query(select)
-    .then((results) => callback(null, { ...reviews, 'results': results.rows }))
+    .then((results) => callback(null, { ...reviews, results: results.rows }))
     .catch((err) => callback(err))
 }
 
@@ -100,12 +100,16 @@ const fetchMetadata = (params, callback) => {
   }
 
   let rtgs = `
-    SELECT rating, count(rating) FROM reviews
-    WHERE product_id = ${product_id} GROUP BY rating;
+    SELECT rating, count(rating)
+    FROM reviews
+    WHERE product_id = ${product_id}
+    GROUP BY rating;
   `
   let recd = `
-    SELECT recommend, count(recommend) FROM reviews
-    WHERE product_id = ${product_id} GROUP BY recommend;
+    SELECT recommend, count(recommend)
+    FROM reviews
+    WHERE product_id = ${product_id}
+    GROUP BY recommend;
   `
   let chars = `
     SELECT char.name, char.id, ROUND(AVG(char_reviews.value), 4) AS value
@@ -136,8 +140,23 @@ const fetchMetadata = (params, callback) => {
     .catch((err) => callback(err))
 }
 
+const setHelpful = (param, callback) => {
+  let { review_id } = param
+
+  let update = `
+    UPDATE reviews
+    SET helpfulness = CASE WHEN helpfulness > 0 THEN helpfulness + 1 ELSE 1 END
+    WHERE id = ${review_id};
+  `
+
+client.query(update)
+  .then((results) => callback(null, results.rows))
+  .catch((err) => callback(err))
+}
+
 module.exports = {
   fetchReviews,
   addReview,
   fetchMetadata,
+  setHelpful,
 }
