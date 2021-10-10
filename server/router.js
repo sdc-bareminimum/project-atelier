@@ -37,7 +37,7 @@ router.put('/:review_id/helpful', (req, res) => {
     if (err) {
       res.status(400).send(err)
     }
-    res.status(200).send(data)
+    res.status(204).send(data)
   })
 })
 
@@ -46,7 +46,7 @@ router.put('/:review_id/report', (req, res) => {
     if (err) {
       res.status(400).send(err)
     }
-    res.status(200).send(data)
+    res.status(204).send(data)
   })
 })
 
