@@ -28,6 +28,13 @@ const fetchReviews = (params, callback) => {
     product_id,
   } = params
 
+  let reviews = {
+    product: product_id,
+    page: page ? page : 1,
+    count: count ? count : 5,
+    results: []
+  }
+
   // missing photos
   let select = `
     SELECT id, rating, summary, recommend, response, body, date, reviewer_name, helpfulness
@@ -39,7 +46,7 @@ const fetchReviews = (params, callback) => {
   `
 
   client.query(select)
-    .then((results) => callback(null, results.rows))
+    .then((results) => callback(null, { ...reviews, 'results': results.rows }))
     .catch((err) => callback(err))
 }
 
