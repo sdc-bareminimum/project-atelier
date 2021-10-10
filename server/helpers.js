@@ -29,7 +29,7 @@ const fetchReviews = (params, callback) => {
   } = params
 
   // missing photos
-  let str = `
+  let select = `
     SELECT id, rating, summary, recommend, response, body, date, reviewer_name, helpfulness
     FROM reviews
     WHERE product_id = ${product_id}
@@ -38,10 +38,9 @@ const fetchReviews = (params, callback) => {
     OFFSET ${page > 1 && count ? (page - 1) * count : 0};
   `
 
-  client.query(str)
+  client.query(select)
     .then((results) => callback(null, results.rows))
     .catch((err) => callback(err))
-    .then(() => client.end())
 }
 
 const addReview = (data, callback) => {
@@ -56,33 +55,31 @@ const addReview = (data, callback) => {
   } = data
 
   // missing photos & characteristics
-  let str = `
-    PREPARE add (int, int, text, text, bool, text, text) AS
-      INSERT INTO reviews (
-        product_id,
-        rating,
-        summary,
-        body,
-        recommend,
-        reviewer_name,
-        reviewer_email
-      )
-    VALUES ($1, $2, $3, $4, $5, $6, $7);
-    EXECUTE add (
-      ${product_id},
-      ${rating},
-      ${summary},
-      ${body},
-      ${recommend},
-      ${reviewer_name},
-      ${reviewer_email}
-    );
-    `
-    console.log(str)
-  client.query(str)
-    .then((results) => callback(null, results))
+  let insert = `
+    INSERT INTO reviews (
+      product_id,
+      rating,
+      summary,
+      body,
+      recommend,
+      reviewer_name,
+      reviewer_email
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    RETURNING id;
+  `
+
+  client.query(insert, [
+    product_id,
+    rating,
+    summary,
+    body,
+    recommend,
+    reviewer_name,
+    reviewer_email
+  ])
+    .then((results) => callback(null, results.rows))
     .catch((err) => callback(err))
-    .then(() => client.end())
 }
 
 module.exports = {

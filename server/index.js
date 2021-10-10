@@ -4,8 +4,7 @@ const router = require('./router.js')
 const port = 3000
 const app = express()
 
-app.use(express.json())
-app.use('/api/reviews/', router)
+app.use('/api/reviews', router)
 
 app.listen(port, () => {
   console.log(`listening on localhost:${port}`)

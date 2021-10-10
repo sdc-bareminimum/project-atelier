@@ -14,10 +14,13 @@ router.get('/', (req, res) => {
 })
 
 router.post('/', (req, res) => {
+  console.log(req.body)
   db.addReview(req.body, (err, data) => {
     if (err) {
+      console.log(err)
       res.status(400).send(err)
     }
+    console.log(data)
     res.status(201).send(data)
   })
 })
