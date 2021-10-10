@@ -82,7 +82,55 @@ const addReview = (data, callback) => {
     .catch((err) => callback(err))
 }
 
+const fetchMetadata = (params, callback) => {
+  let { product_id } = params
+
+  let metadata = {
+    product_id,
+    ratings: {},
+    recommended: {},
+    characteristics: {},
+  }
+
+  let rtgs = `
+    SELECT rating, count(rating) FROM reviews
+    WHERE product_id = ${product_id} GROUP BY rating;
+  `
+  let recd = `
+    SELECT recommend, count(recommend) FROM reviews
+    WHERE product_id = ${product_id} GROUP BY recommend;
+  `
+  let chars = `
+    SELECT char.name, char.id, ROUND(AVG(char_reviews.value), 4) AS value
+    FROM characteristics AS char, char_reviews
+    WHERE char.product_id = ${product_id}
+    GROUP BY char.name, char.id;
+  `
+
+  client.query(rtgs)
+    .then((results) => {
+      results.rows.forEach((rtg) => {
+        metadata.ratings[rtg.rating] = rtg.count
+      })
+    })
+    .then(() => client.query(recd))
+      .then((results) => {
+        results.rows.forEach((recd) => {
+          metadata.recommended[recd.recommend] = recd.count
+        })
+      })
+    .then(() => client.query(chars))
+      .then((results) => {
+        results.rows.forEach((char) => {
+          metadata.characteristics[char.name] = { id: char.id, value: char.value }
+        })
+      })
+    .then(() => callback(null, metadata))
+    .catch((err) => callback(err))
+}
+
 module.exports = {
   fetchReviews,
-  addReview
+  addReview,
+  fetchMetadata,
 }
