@@ -25,7 +25,7 @@ const fetchReviews = (params, callback) => {
     page,
     count,
     sort,
-    product_id,
+    product_id
   } = params
 
   let reviews = {
@@ -58,7 +58,7 @@ const addReview = (data, callback) => {
     body,
     recommend,
     reviewer_name,
-    reviewer_email,
+    reviewer_email
   } = data
 
   // missing photos & characteristics
@@ -96,7 +96,7 @@ const fetchMetadata = (params, callback) => {
     product_id,
     ratings: {},
     recommended: {},
-    characteristics: {},
+    characteristics: {}
   }
 
   let rtgs = `
@@ -145,11 +145,29 @@ const setHelpful = (param, callback) => {
 
   let update = `
     UPDATE reviews
-    SET helpfulness = CASE WHEN helpfulness > 0 THEN helpfulness + 1 ELSE 1 END
+    SET helpfulness = helpfulness + 1
     WHERE id = ${review_id};
   `
 
 client.query(update)
+  .then((results) => callback(null, results.rows))
+  .catch((err) => callback(err))
+}
+
+const setReport = (param, callback) => {
+  let { review_id } = param
+
+  // let update = `
+  //   UPDATE reviews
+  //   SET reported = true
+  //   WHERE id = ${review_id};
+  // `
+  let remove = `
+    DELETE FROM reviews
+    WHERE id = ${review_id};
+  `
+
+client.query(remove)
   .then((results) => callback(null, results.rows))
   .catch((err) => callback(err))
 }
@@ -159,4 +177,5 @@ module.exports = {
   addReview,
   fetchMetadata,
   setHelpful,
+  setReport
 }

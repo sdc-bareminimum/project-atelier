@@ -42,7 +42,12 @@ router.put('/:review_id/helpful', (req, res) => {
 })
 
 router.put('/:review_id/report', (req, res) => {
-
+  db.setReport(req.params, (err, data) => {
+    if (err) {
+      res.status(400).send(err)
+    }
+    res.status(200).send(data)
+  })
 })
 
 module.exports = router
