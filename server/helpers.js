@@ -99,17 +99,11 @@ const fetchMetadata = (params, callback) => {
     characteristics: {}
   }
 
-  let rtgs = `
-    SELECT rating, count(rating)
+  let rtgRec = `
+    SELECT rating, count(rating), recommend, count(recommend)
     FROM reviews
     WHERE product_id = ${product_id}
-    GROUP BY rating;
-  `
-  let recd = `
-    SELECT recommend, count(recommend)
-    FROM reviews
-    WHERE product_id = ${product_id}
-    GROUP BY recommend;
+    GROUP BY rating, recommend;
   `
   let chars = `
     SELECT char.name, char.id, ROUND(AVG(char_reviews.value), 4) AS value
@@ -118,22 +112,17 @@ const fetchMetadata = (params, callback) => {
     GROUP BY char.name, char.id;
   `
 
-  client.query(rtgs)
+  client.query(rtgRec)
     .then((results) => {
-      results.rows.forEach((rtg) => {
-        metadata.ratings[rtg.rating] = rtg.count
+      results.rows.forEach((row) => {
+        metadata.ratings[row.rating] = row.count
+        metadata.recommended[row.recommend] = row.count
       })
     })
-    .then(() => client.query(recd))
-      .then((results) => {
-        results.rows.forEach((recd) => {
-          metadata.recommended[recd.recommend] = recd.count
-        })
-      })
     .then(() => client.query(chars))
       .then((results) => {
-        results.rows.forEach((char) => {
-          metadata.characteristics[char.name] = { id: char.id, value: char.value }
+        results.rows.forEach((row) => {
+          metadata.characteristics[row.name] = { id: row.id, value: row.value }
         })
       })
     .then(() => callback(null, metadata))

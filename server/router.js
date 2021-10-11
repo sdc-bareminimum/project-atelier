@@ -26,6 +26,7 @@ router.post('/', (req, res) => {
 router.get('/meta', (req, res) => {
   db.fetchMetadata(req.query, (err, data) => {
     if (err) {
+      console.log(err)
       res.status(400).send(err)
     }
     res.status(200).send(data)
