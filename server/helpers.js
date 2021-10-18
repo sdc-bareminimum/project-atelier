@@ -102,13 +102,13 @@ const fetchMetadata = (params, callback) => {
   let rtgRec = `
     SELECT rating, count(rating), recommend, count(recommend)
     FROM reviews
-    WHERE product_id = ${product_id}
+    WHERE product_id = ${product_id} AND recommend = true
     GROUP BY rating, recommend;
   `
   let chars = `
     SELECT char.name, char.id, ROUND(AVG(char_reviews.value), 4) AS value
     FROM characteristics AS char, char_reviews
-    WHERE char.product_id = ${product_id}
+    WHERE char.product_id = ${product_id} AND char_reviews.char_id = char.id
     GROUP BY char.name, char.id;
   `
 
